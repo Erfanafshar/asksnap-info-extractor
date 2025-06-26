@@ -1,0 +1,1 @@
+Hey! this is a proejct for quick interactive work with LLMs
