@@ -10,14 +10,34 @@ client = OpenAI(api_key=api_key)
 def ask_snap(question, topic_type="general"):
     prompt = f"""
 You are a helpful assistant. The user is asking about a topic.
-Extract:
-1. A 1-line summary
-2. 3–5 bullet points about the topic, focusing on {topic_type}.
+
+1. Provide a 1-line summary of the topic.
+2. Provide 3 to 5 key points in bullet format.
+3. Suggest 3 follow-up topics:
+   - One BROADER (more general)
+   - One RELATED (same level, same context)
+   - One DEEPER (more detailed or niche)
+
+Use this format exactly:
 
 Topic: {question}
+
+Summary:
+...
+
+Key Points:
+- ...
+- ...
+- ...
+
+Follow-up Suggestions:
+1. Broader: ...
+2. Related: ...
+3. Deeper: ...
 """
+
     response = client.chat.completions.create(
-        model="gpt-3.5-turbo",
+        model="gpt-3.5-turbo",  # or 'gpt-4o'
         messages=[
             {"role": "user", "content": prompt}
         ],
@@ -29,13 +49,37 @@ Topic: {question}
 
 def main():
     print("🧠 AskSnap — LLM Info Assistant (type 'exit' to quit)")
+    last_followups = {}
+
     while True:
-        user_input = input("AskSnap > ")
+        user_input = input("AskSnap > ").strip()
+
         if user_input.lower() in ["exit", "quit"]:
             print("Goodbye!")
             break
-        answer = ask_snap(user_input)
-        print("\n" + answer + "\n")
+
+        # Check if user typed a number for follow-up
+        if user_input in ["1", "2", "3"] and last_followups:
+            followup_topic = last_followups.get(user_input)
+            if followup_topic:
+                print(f"\n🔁 Exploring follow-up: {followup_topic}")
+                user_input = followup_topic
+            else:
+                print("⚠️ Invalid follow-up number. Ask a new question.")
+                continue
+
+        result = ask_snap(user_input)
+        print("\n" + result + "\n")
+
+        # Extract follow-up lines from output
+        last_followups = {}
+        for line in result.splitlines():
+            if line.strip().startswith("1. Broader:"):
+                last_followups["1"] = line.split(":", 1)[1].strip()
+            elif line.strip().startswith("2. Related:"):
+                last_followups["2"] = line.split(":", 1)[1].strip()
+            elif line.strip().startswith("3. Deeper:"):
+                last_followups["3"] = line.split(":", 1)[1].strip()
 
 
 if __name__ == "__main__":
