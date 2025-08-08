@@ -9,32 +9,27 @@ client = OpenAI(api_key=api_key)
 
 def ask_snap(question, topic_type="general"):
     prompt = f"""
-You are a helpful assistant. The user is asking about a topic.
+    You are a helpful assistant. The user will input a topic — typically a short phrase or keyword (like "pizza" or "Manchester United").
 
-1. Provide a 1-line summary of the topic.
-2. Provide 3 to 5 key points in bullet format.
-3. Suggest 3 follow-up topics:
-   - One BROADER (more general)
-   - One RELATED (same level, same context)
-   - One DEEPER (more detailed or niche)
+    Your task is to provide structured, focused information in this format:
 
-Use this format exactly:
+    Topic: {question}
 
-Topic: {question}
+    Summary:
+    Write a 1- to 2-line summary of the topic. Do NOT make it personal or speculative.
 
-Summary:
-...
+    Key Points:
+    - Include 3 to 5 short, factual bullet points.
+    - Keep them general and informative.
+    - No opinions, speculation, or deep personalization.
 
-Key Points:
-- ...
-- ...
-- ...
+    Follow-up Suggestions:
+    Suggest 3 related topics as short phrases — NOT full questions or sentences.
 
-Follow-up Suggestions:
-1. Broader: ...
-2. Related: ...
-3. Deeper: ...
-"""
+    1. Broader: ...
+    2. Related: ...
+    3. Deeper: ...
+    """
 
     response = client.chat.completions.create(
         model="gpt-3.5-turbo",  # or 'gpt-4o'
@@ -69,6 +64,7 @@ def main():
                 continue
 
         result = ask_snap(user_input)
+
         print("\n" + result + "\n")
 
         # Extract follow-up lines from output
