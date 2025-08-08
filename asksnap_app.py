@@ -4,10 +4,17 @@ from openai import OpenAI
 from dotenv import load_dotenv
 
 # Load env (for local testing)
-load_dotenv()
 
-api_key = os.getenv("OPENAI_API_KEY")
+# load_dotenv()
+# api_key = os.getenv("OPENAI_API_KEY")
+# client = OpenAI(api_key=api_key)
+
+# Load env (for deployment)
+
+load_dotenv()
+api_key = st.secrets.get("OPENAI_API_KEY") or os.getenv("OPENAI_API_KEY")
 client = OpenAI(api_key=api_key)
+
 
 st.set_page_config(page_title="AskSnap", page_icon="📎")
 st.title("📎 AskSnap")
